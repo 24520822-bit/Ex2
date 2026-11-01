@@ -103,6 +103,65 @@ h1 {
   outline-offset: 2px;
 }
 
+.results-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
+}
+
+.result-count {
+  color: #5e6d67;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.reset-button,
+.delete-button {
+  border: 0;
+  border-radius: 0.55rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.reset-button {
+  padding: 0.55rem 0.75rem;
+  background: #e8f1eb;
+  color: #2f7253;
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+
+.delete-button {
+  display: block;
+  margin-top: 0.9rem;
+  padding: 0.35rem 0.55rem;
+  background: transparent;
+  color: #8b4c42;
+  font-size: 0.8rem;
+}
+
+.reset-button:hover {
+  background: #dcebe1;
+}
+
+.delete-button:hover {
+  background: #f7eae7;
+}
+
+.reset-button:focus-visible,
+.delete-button:focus-visible {
+  outline: 3px solid #94c8ab;
+  outline-offset: 2px;
+}
+
+.empty-state {
+  margin: 1.5rem 0 0;
+  color: #66746d;
+  text-align: center;
+}
+
 .people-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));

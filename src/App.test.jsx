@@ -53,3 +53,20 @@ describe('directory search and IQ results', () => {
     expect(SMART_PEOPLE.map(({ name }) => name)).toEqual(originalNames);
   });
 });
+
+describe('directory deletion and reset', () => {
+  it('removes a scientist and restores the original directory on reset', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: 'Delete Isaac Newton' }));
+
+    expect(screen.queryByText('Isaac Newton')).not.toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('5 scientists');
+
+    await user.click(screen.getByRole('button', { name: 'Reset directory' }));
+
+    expect(screen.getByText('Isaac Newton')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('6 scientists');
+  });
+});

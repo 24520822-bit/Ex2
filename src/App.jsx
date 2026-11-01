@@ -5,11 +5,12 @@ import './App.css';
 export default function App() {
   const searchId = useId();
   const minimumIQId = useId();
+  const [people, setPeople] = useState(() => [...SMART_PEOPLE]);
   const [search, setSearch] = useState('');
   const [minimumIQ, setMinimumIQ] = useState(null);
 
   const normalizedSearch = search.trim().toLowerCase();
-  const results = SMART_PEOPLE
+  const results = people
     .filter((person) => person.name.toLowerCase().includes(normalizedSearch))
     .filter((person) => minimumIQ === null || person.iq >= minimumIQ)
     .toSorted((left, right) => right.iq - left.iq);
@@ -50,6 +51,15 @@ export default function App() {
           </div>
         </div>
 
+        <div className="results-toolbar">
+          <output className="result-count" role="status" aria-live="polite">
+            {results.length} {results.length === 1 ? 'scientist' : 'scientists'}
+          </output>
+          <button className="reset-button" type="button" onClick={() => setPeople([...SMART_PEOPLE])}>
+            Reset directory
+          </button>
+        </div>
+
         <ul className="people-list" aria-label="Scientists">
           {results.map((person) => (
             <li className="person-card" key={person.id}>
@@ -57,10 +67,20 @@ export default function App() {
                 <h2>{person.name}</h2>
                 <p>Age {person.age}</p>
                 <p className="iq-score">IQ {person.iq}</p>
+                <button
+                  className="delete-button"
+                  type="button"
+                  onClick={() => setPeople((currentPeople) =>
+                    currentPeople.filter((currentPerson) => currentPerson.id !== person.id))}
+                  aria-label={`Delete ${person.name}`}
+                >
+                  Delete
+                </button>
               </article>
             </li>
           ))}
         </ul>
+        {results.length === 0 && <p className="empty-state">No scientists match these filters.</p>}
       </section>
     </main>
   );
