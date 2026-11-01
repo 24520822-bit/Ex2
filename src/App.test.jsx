@@ -1,6 +1,7 @@
+import { Profiler } from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import App from './App.jsx';
 import { SMART_PEOPLE } from './data/smartPeople.js';
 
@@ -78,6 +79,21 @@ describe('directory search and IQ results', () => {
     await user.clear(minimumIQ);
 
     expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(6);
+  });
+
+  it('commits exactly one render when one search character is typed', async () => {
+    const user = userEvent.setup();
+    const onRender = vi.fn();
+    render(
+      <Profiler id="directory" onRender={onRender}>
+        <App />
+      </Profiler>,
+    );
+    onRender.mockClear();
+
+    await user.type(screen.getByRole('searchbox', { name: 'Search scientists' }), 'a');
+
+    expect(onRender).toHaveBeenCalledTimes(1);
   });
 });
 
