@@ -52,6 +52,33 @@ describe('directory search and IQ results', () => {
     ]);
     expect(SMART_PEOPLE.map(({ name }) => name)).toEqual(originalNames);
   });
+
+  it('combines name search and minimum IQ as independent filters', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.type(screen.getByRole('searchbox', { name: 'Search scientists' }), 'i');
+    await user.type(screen.getByRole('spinbutton', { name: 'Minimum IQ' }), '190');
+
+    const names = within(screen.getByRole('list'))
+      .getAllByRole('heading', { level: 2 })
+      .map((heading) => heading.textContent);
+
+    expect(names).toEqual(['Albert Einstein', 'William Sidis', 'Isaac Newton']);
+  });
+
+  it('clears the numeric threshold when the input is emptied', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const minimumIQ = screen.getByRole('spinbutton', { name: 'Minimum IQ' });
+
+    await user.type(minimumIQ, '210');
+    expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(1);
+
+    await user.clear(minimumIQ);
+
+    expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(6);
+  });
 });
 
 describe('directory deletion and reset', () => {
