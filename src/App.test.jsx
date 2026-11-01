@@ -82,6 +82,28 @@ describe('directory search and IQ results', () => {
 });
 
 describe('directory deletion and reset', () => {
+  it('updates the polite live count as filters, deletion, and reset change results', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const status = screen.getByRole('status');
+    const search = screen.getByRole('searchbox', { name: 'Search scientists' });
+
+    expect(status).toHaveAttribute('aria-live', 'polite');
+    expect(status).toHaveTextContent('6 scientists');
+
+    await user.type(search, 'einstein');
+    expect(status).toHaveTextContent('1 scientist');
+
+    await user.click(screen.getByRole('button', { name: 'Delete Albert Einstein' }));
+    expect(status).toHaveTextContent('0 scientists');
+
+    await user.clear(search);
+    expect(status).toHaveTextContent('5 scientists');
+
+    await user.click(screen.getByRole('button', { name: 'Reset directory' }));
+    expect(status).toHaveTextContent('6 scientists');
+  });
+
   it('moves focus to the next stable delete control after deleting Johann Goethe', async () => {
     const user = userEvent.setup();
     render(<App />);
@@ -91,6 +113,28 @@ describe('directory deletion and reset', () => {
 
     expect(einsteinDeleteButton).toBeInTheDocument();
     expect(einsteinDeleteButton).toHaveFocus();
+  });
+
+  it('returns focus to search when deleting the only visible scientist', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const search = screen.getByRole('searchbox', { name: 'Search scientists' });
+
+    await user.type(search, 'johann');
+    await user.click(screen.getByRole('button', { name: 'Delete Johann Goethe' }));
+
+    expect(search).toHaveFocus();
+    expect(screen.getByRole('status')).toHaveTextContent('0 scientists');
+  });
+
+  it('moves focus to the previous delete control when deleting the last result', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const maxwellDeleteButton = screen.getByRole('button', { name: 'Delete James Maxwell' });
+
+    await user.click(screen.getByRole('button', { name: 'Delete Leonardo da Vinci' }));
+
+    expect(maxwellDeleteButton).toHaveFocus();
   });
 
   it('removes a scientist and restores the original directory on reset', async () => {
