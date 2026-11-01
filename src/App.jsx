@@ -1,10 +1,13 @@
-import { useId, useState } from 'react';
+import { useId, useLayoutEffect, useRef, useState } from 'react';
 import { SMART_PEOPLE } from './data/smartPeople.js';
 import './App.css';
 
 export default function App() {
   const searchId = useId();
   const minimumIQId = useId();
+  const searchInputRef = useRef(null);
+  const deleteButtonRefs = useRef(new Map());
+  const pendingFocusId = useRef(undefined);
   const [people, setPeople] = useState(() => [...SMART_PEOPLE]);
   const [search, setSearch] = useState('');
   const [minimumIQ, setMinimumIQ] = useState(null);
@@ -14,6 +17,22 @@ export default function App() {
     .filter((person) => person.name.toLowerCase().includes(normalizedSearch))
     .filter((person) => minimumIQ === null || person.iq >= minimumIQ)
     .toSorted((left, right) => right.iq - left.iq);
+
+  useLayoutEffect(() => {
+    const focusId = pendingFocusId.current;
+    if (focusId === undefined) return;
+
+    pendingFocusId.current = undefined;
+    (focusId === null ? searchInputRef.current : deleteButtonRefs.current.get(focusId))
+      ?.focus();
+  }, [people]);
+
+  const deletePerson = (personId) => {
+    const personIndex = results.findIndex((person) => person.id === personId);
+    pendingFocusId.current = results[personIndex + 1]?.id ?? results[personIndex - 1]?.id ?? null;
+    setPeople((currentPeople) =>
+      currentPeople.filter((person) => person.id !== personId));
+  };
 
   return (
     <main className="directory">
@@ -29,6 +48,7 @@ export default function App() {
             <label htmlFor={searchId}>Search scientists</label>
             <input
               id={searchId}
+              ref={searchInputRef}
               type="search"
               value={search}
               onChange={(event) => setSearch(event.currentTarget.value)}
@@ -70,8 +90,11 @@ export default function App() {
                 <button
                   className="delete-button"
                   type="button"
-                  onClick={() => setPeople((currentPeople) =>
-                    currentPeople.filter((currentPerson) => currentPerson.id !== person.id))}
+                  ref={(element) => {
+                    if (element) deleteButtonRefs.current.set(person.id, element);
+                    else deleteButtonRefs.current.delete(person.id);
+                  }}
+                  onClick={() => deletePerson(person.id)}
                   aria-label={`Delete ${person.name}`}
                 >
                   Delete

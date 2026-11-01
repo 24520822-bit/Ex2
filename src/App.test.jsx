@@ -55,6 +55,17 @@ describe('directory search and IQ results', () => {
 });
 
 describe('directory deletion and reset', () => {
+  it('moves focus to the next stable delete control after deleting Johann Goethe', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const einsteinDeleteButton = screen.getByRole('button', { name: 'Delete Albert Einstein' });
+
+    await user.click(screen.getByRole('button', { name: 'Delete Johann Goethe' }));
+
+    expect(einsteinDeleteButton).toBeInTheDocument();
+    expect(einsteinDeleteButton).toHaveFocus();
+  });
+
   it('removes a scientist and restores the original directory on reset', async () => {
     const user = userEvent.setup();
     render(<App />);
